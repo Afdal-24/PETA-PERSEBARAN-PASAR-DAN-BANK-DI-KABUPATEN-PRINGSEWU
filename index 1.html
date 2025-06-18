@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Peta Niaga Pringsewu</title>
+
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+    crossorigin=""
+  />
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+	}
+	.deskripsi {
+  padding: 15px;
+  font-size: 15px;
+  line-height: 1.6;
+  text-align: justify;
+    }
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+    .legend {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: white;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+      z-index: 1000;
+    }
+    .legend h4 {
+      margin: 0 0 8px;
+    }
+    .legend ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    .legend li {
+      display: flex;
+      align-items: center;
+      margin-bottom: 5px;
+    }
+    .legend span {
+      width: 12px;
+      height: 12px;
+      display: inline-block;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+  </style>
+</head>
+<body>
+  <!-- DESKRIPSI DI ATAS -->
+  <div class="deskripsi">
+    <h3><center>Peta Persebaran Niaga Kabupaten Pringsewu</center></h3>
+    <p>Peta interaktif ini menyajikan distribusi spasial fasilitas-fasilitas niaga yang tersebar di wilayah administratif Kabupaten Pringsewu. Fasilitas niaga yang ditampilkan mencakup berbagai titik kegiatan ekonomi seperti pasar tradisional, pusat perbelanjaan, dan pertokoan modern. Setiap jenis fasilitas ditandai dengan simbol berwarna yang berbeda untuk memudahkan identifikasi visual: pasar diberi simbol berwarna hitam, dan kantor bank dengan simbol biru.Selain itu, peta ini juga memuat batas administratif Kabupaten Pringsewu sebagai acuan dalam analisis spasial dan perencanaan wilayah berbasis potensi ekonomi lokal.
+    </p> 
+  </div>
+
+<div id="map">
+  <div class="legend">
+    <h4>Keterangan Simbol</h4>
+    <ul>
+      <li><span style="background:black;"></span> Pasar</li>
+      <li><span style="background:blue;"></span> Kantor Bank</li>
+    </ul>
+  </div>
+</div>
+
+<script
+  src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+  integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+  crossorigin=""
+></script>
+<script src="leaflet.ajax.js"></script>
+
+<script>
+  // Inisialisasi peta
+  const map = L.map("map").setView([-5.35, 104.98], 10);
+
+  // Basemap OSM
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+  }).addTo(map);
+
+  // Fungsi untuk menentukan warna ikon
+  function getColor(kategori) {
+    switch (kategori.toLowerCase()) {
+      case "pasar":
+        return "gray";
+      case "kantor bank":
+      case "bank":
+        return "blue";
+      case "koperasi":
+        return "read";
+		default:
+        return "read";
+    }
+  }
+
+  // Fungsi untuk membuat marker dengan ikon warna
+  function pointToLayer(feature, latlng) {
+    const kategori = feature.properties.REMARK || "lainnya";
+    const color = getColor(kategori);
+
+    const icon = L.divIcon({
+      className: 'custom-icon',
+      html: `<span style="color:${color}; font-size: 24px;">●</span>`,
+    });
+
+    return L.marker(latlng, { icon: icon });
+  }
+
+  // Fungsi popup
+  function popUp(feature, layer) {
+    const nama = feature.properties.NAMOBJ || "Tanpa Nama";
+    const kategori = feature.properties.REMARK || "Kategori Tidak Tersedia";
+    layer.bindPopup(`<b>${nama}</b><br>Kategori: ${kategori}`);
+  }
+
+  // Tambah layer GeoJSON
+  const geojsonLayer = new L.GeoJSON.AJAX("Pringsewu.geojson", {
+    onEachFeature: popUp,
+    pointToLayer: pointToLayer
+  }).addTo(map);
+
+  // Tambahkan batas kabupaten (opsional)
+  const batasKab = new L.GeoJSON.AJAX("KAB.PRINGSEWU.geojson").addTo(map);
+</script>
+  <!-- DESKRIPSI DI BAWAH -->
+  <footer>
+    <center>Dibuat oleh: Afdal Ilhami | NPM: 2213034004 </center>
+   <center> Pendidikan Geografi FKIP Universitas Lampung </center>
+  </footer>
+
+</body>
+</html>
